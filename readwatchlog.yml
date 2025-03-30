@@ -1,0 +1,23 @@
+---
+- name: Schedule and Run local script
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  roles:
+  - readwatchlog
+  vars_files:
+  - roles/readwatchlog/vars/paths.yml
+  vars:
+    error_log_file: "error.log"
+    extension: "ods"
+    filename: "Vault"
+    info_log_file: "info.log"
+    inputs_folder: "inputs"
+    outputs_folder: "outputs"
+    python: "python3.12"
+    script_name: "rwl_main.py"
+    sheetname: "Vault"
+    call: "{{ python }} {{ script_name }} --file {{ filename }}.{{ extension }} --sheet {{ sheetname }} --output"
+    operations:
+    - "{{ call }} --tags"
+    - "{{ call }} --links --auto --chunk 100"

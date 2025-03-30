@@ -1,0 +1,3 @@
+logs_directory: "roles/readwatchlog/logs"
+script_directory: ""
+source_path: ""

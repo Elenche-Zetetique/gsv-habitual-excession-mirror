@@ -1,0 +1,106 @@
+- name: Define the output filepath
+  tags: test, prod
+  set_fact:
+    output_filepath: "{{ script_directory }}/{{ outputs_folder }}/{{ current_ts }}.{{ extension }}"
+
+- name: Show the output filepath
+  tags: test
+  debug:
+    msg: "{{ output_filepath }}"
+
+- name: Check that file created
+  tags: test, prod
+  stat:
+    path: "{{ output_filepath }}"
+  register: stat_output_filepath
+
+- name: Fail if file does not exist
+  tags: test, prod
+  fail:
+    msg: "The file {{ output_filepath }} does not exist. Execution terminated"
+  when: not stat_output_filepath.stat.exists
+
+- name: Adding record about execution of operation
+  tags: prod
+  lineinfile:
+    path: "{{ logs_directory }}/{{ info_log_file }}"
+    line: "{{ lookup('pipe', 'date +%Y-%m-%dT%H:%M:%S') }} - Operation performed and saved into {{ output_filepath }}"
+    create: yes
+    mode: '0644'
+
+- name: Get checksum of the input file
+  tags: test, prod
+  stat:
+    path: "{{ input_filepath }}"
+    checksum_algorithm: sha256
+    get_checksum: yes
+  register: hash_input_file
+
+- name: Show the checksum of the input filepath
+  tags: test
+  debug:
+    msg: "{{ hash_input_file.stat.checksum }}"
+
+- name: Adding record about hash of the input file
+  tags: prod
+  lineinfile:
+    path: "{{ logs_directory }}/{{ info_log_file }}"
+    line: "{{ lookup('pipe', 'date +%Y-%m-%dT%H:%M:%S') }} - The hash of {{ input_filepath }}: {{ hash_input_file.stat.checksum }}"
+    create: yes
+    mode: '0644'
+
+- name: Get checksum of a new created output file
+  tags: test, prod
+  stat:
+    path: "{{ output_filepath }}"
+    checksum_algorithm: sha256
+    get_checksum: yes
+  register: hash_output_file
+
+- name: Show the checksum of the output filepath
+  tags: test
+  debug:
+    msg: "{{ hash_output_file.stat.checksum }}"
+
+- name: Adding record about hash of the output file
+  tags: prod
+  lineinfile:
+    path: "{{ logs_directory }}/{{ info_log_file }}"
+    line: "{{ lookup('pipe', 'date +%Y-%m-%dT%H:%M:%S') }} - The hash of {{ output_filepath }}: {{ hash_output_file.stat.checksum }}"
+    create: yes
+    mode: '0644'
+
+- name: Replacing the output file with the input file if their hashes are different
+  tags: test, prod
+  copy:
+    src: "{{ output_filepath }}"
+    dest: "{{ input_filepath }}"
+    remote_src: yes
+    mode: '0644'
+  when: hash_input_file.stat.checksum != hash_output_file.stat.checksum
+
+- name: Checking the hashes
+  tags: test
+  debug:
+    msg: "Hashes are equal: {{ hash_input_file.stat.checksum == hash_output_file.stat.checksum }}"
+
+- name: Define log message based on hash comparison
+  tags: prod
+  set_fact:
+    log_message: "{{ lookup('pipe', 'date +%Y-%m-%dT%H:%M:%S') }} - {% if hash_input_file.stat.checksum != hash_output_file.stat.checksum %}Hashes are different, new input file saved into {{ input_filepath }}{% else %}Hashes are identical, no changes needed for {{ input_filepath }}{% endif %}"
+
+- name: Log the message to the file
+  tags: prod
+  lineinfile:
+    path: "{{ logs_directory }}/{{ info_log_file }}"
+    line: "{{ log_message }}"
+    create: yes
+    mode: '0644'
+
+- name: Adding the latest version of the input file into the 'latest'-folder in the source path
+  tags: test, prod
+  copy:
+    src: "{{ input_filepath }}"
+    dest: "{{ source_path }}/latest/{{ filename }}.{{ extension }}"
+    remote_src: yes
+    mode: '0644'

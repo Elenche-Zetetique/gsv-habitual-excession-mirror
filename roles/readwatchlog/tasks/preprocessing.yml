@@ -1,0 +1,71 @@
+- name: Ensure script is executable
+  tags: test, prod
+  file:
+    path: "{{ script_directory }}/{{ script_name }}"
+    mode: "u+x"
+
+- name: Create the folder 'logs' in the source path
+  tags: prod
+  file:
+    path: "{{ logs_directory }}"
+    state: directory
+    mode: "0755"
+
+- name: Create the folder 'latest' in the source path
+  tags: test, prod
+  file:
+    path: "{{ source_path }}/latest"
+    state: directory
+    mode: "0755"
+
+- name: Define the input sourcepath
+  tags: test, prod
+  set_fact:
+    input_sourcepath: "{{ source_path }}/latest/{{ filename }}.{{ extension }}"
+
+- name: Check that the input file exists in the sourcepath
+  tags: test, prod
+  stat:
+    path: "{{ input_sourcepath }}"
+  register: stat_input_sourcepath
+
+- name: Fail if the input file does not exist
+  tags: test, prod
+  fail:
+    msg: "The file {{ input_sourcepath }} does not exist. Execution terminated"
+  when: not stat_input_sourcepath.stat.exists
+
+- name: Confirm that the input input file in the sourcepath exists
+  tags: test
+  debug:
+    msg: "{{ input_sourcepath }} exists"
+
+- name: Define the input filepath
+  tags: test, prod
+  set_fact:
+    input_filepath: "{{ script_directory }}/{{ inputs_folder }}/{{ filename }}.{{ extension }}"
+
+- name: Copy the input file from the source filepath
+  tags: test, prod
+  copy:
+    src: "{{ input_sourcepath }}"
+    dest: "{{ input_filepath }}"
+    remote_src: yes
+    mode: '0644'
+
+- name: Check that the input file exists
+  tags: test, prod
+  stat:
+    path: "{{ input_filepath }}"
+  register: stat_input_filepath
+
+- name: Fail if the input file does not exist
+  tags: test, prod
+  fail:
+    msg: "The file {{ input_filepath }} does not exist. Execution terminated"
+  when: not stat_input_filepath.stat.exists
+
+- name: Confirm that the input file in the input filepath exists
+  tags: test
+  debug:
+    msg: "{{ input_filepath }} exists"

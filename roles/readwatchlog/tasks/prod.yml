@@ -1,0 +1,8 @@
+- name: Execute tasks before the operation
+  import_tasks: tasks/preprocessing.yml
+
+- name: Execute the operation
+  import_tasks: tasks/operation.yml
+
+- name: Execute tasks after the operation
+  import_tasks: tasks/postprocessing.yml

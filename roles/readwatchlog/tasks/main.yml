@@ -1,0 +1,13 @@
+- name: Run in test-mode
+  tags: test
+  include_tasks: test.yml
+  loop: "{{ operations }}"
+  loop_control:
+    loop_var: operation
+
+- name: Run in prod-mode
+  tags: prod
+  include_tasks: prod.yml
+  loop: "{{ operations }}"
+  loop_control:
+    loop_var: operation

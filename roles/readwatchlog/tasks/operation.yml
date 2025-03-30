@@ -1,0 +1,8 @@
+- name: Define the timestamp
+  tags: test, prod
+  set_fact:
+    current_ts: "{{ lookup('pipe', 'date +%Y-%m-%d-%H-%M-%S') }}"
+
+- name: Task to perform the operation
+  tags: test, prod
+  shell: "cd {{ script_directory }} && {{ operation }} --custom_name {{ current_ts }}"
