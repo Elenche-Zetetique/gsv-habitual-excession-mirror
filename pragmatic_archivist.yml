@@ -4,9 +4,9 @@
   connection: local
   gather_facts: no
   roles:
-  - readwatchlog
+  - pragmatic_archivist
   vars_files:
-  - roles/readwatchlog/vars/paths.yml
+  - roles/pragmatic_archivist/vars/paths.yml
   vars:
     error_log_file: "error.log"
     extension: "ods"
@@ -15,7 +15,7 @@
     inputs_folder: "inputs"
     outputs_folder: "outputs"
     python: "python3.12"
-    script_name: "rwl_main.py"
+    script_name: "pa_main.py"
     sheetname: "Vault"
     call: "{{ python }} {{ script_name }} --file {{ filename }}.{{ extension }} --sheet {{ sheetname }} --output"
     operations:

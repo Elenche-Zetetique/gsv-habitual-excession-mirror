@@ -15,20 +15,20 @@
 - Inventory file (`hosts`) configured with the target machines.
 
 ## Usage
-### ReadWatchLog
+### Pragmatic Archivist
 
-Processes files defined in ReadWatchLog (s. [ReadWatchLog](https://github.com/Elenche-Zetetique/readwatchlog-mirror))
+Processes files defined in [Pragmatic Archivist](https://github.com/Elenche-Zetetique/pragmatic-archivist-mirror.git).
 
 Run the playbook in **test mode** (prints debug messages, no logs written):
 
 ```sh
-ansible-playbook readwatchlog.yml -i inventory/hosts --tags "test"
+ansible-playbook pragmatic_archivist.yml -i inventory/hosts --tags "test"
 ```
 
 Run the playbook in **prod mode** (records logs in `info.log`):
 
 ```sh
-ansible-playbook readwatchlog.yml -i inventory/hosts --tags "prod"
+ansible-playbook pragmatic_archivist.yml -i inventory/hosts --tags "prod"
 ```
 
 ## Logging
@@ -42,7 +42,7 @@ ansible-playbook readwatchlog.yml -i inventory/hosts --tags "prod"
 GSV-Habitual-Excession/
 │
 ├── playbooks/
-│   └── readwatchlog.yml # Main playbook for processing documents of ReadWatchLog-format
+│   └── pragmatic_archivist.yml # Main playbook for processing documents of Pragmatic-Archivist-format
 │
 ├── inventory/
 │   ├── hosts             # Inventory file
@@ -51,7 +51,7 @@ GSV-Habitual-Excession/
 │       └── error.log     # Production error-log file
 │
 ├── roles/
-│   └── readwatchlog/
+│   └── pragmatic_archivist/
 │       └── tasks/
 │           ├── main.yml
 │           ├── operation.yml
